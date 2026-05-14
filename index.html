@@ -15,41 +15,45 @@
     * { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
     body { margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
-    main { max-width:1040px; margin:0 auto; padding:24px; display:grid; gap:18px; }
+    main { max-width:1200px; margin:0 auto; padding:24px; display:grid; gap:24px; }
     .hero { background:linear-gradient(135deg,#fff 0%,#f0edff 100%); border:1px solid var(--border); border-radius:24px; padding:22px; box-shadow:var(--shadow); }
-    h1 { font-size:clamp(22px,4vw,32px); line-height:1.1; margin:0 0 8px; letter-spacing:-.02em; }
-    p { margin:0; color:var(--muted); line-height:1.45; font-size:15px; }
-    .grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); }
+    h1 { font-size:clamp(22px,5vw,36px); line-height:1.1; margin:0 0 8px; letter-spacing:-.02em; }
+    p { margin:0; color:var(--muted); line-height:1.45; font-size:clamp(14px,2vw,15px); }
+    .grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; align-items:start; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
     .section-title { font-size:15px; font-weight:750; margin:0 0 12px; }
-    label { display:block; font-weight:700; margin:14px 0 7px; font-size:14px; }
+    label { display:block; font-weight:700; margin:16px 0 7px; font-size:14px; }
     input, textarea, select { width:100%; border:1px solid var(--border); border-radius:13px; padding:13px 14px; font:inherit; font-size:16px; background:#fff; color:var(--text); outline:none; }
     input:focus, textarea:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 4px rgba(109,74,255,.13); }
-    textarea { min-height:84px; resize:vertical; }
+    textarea { min-height:100px; resize:vertical; }
     .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .row3 { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; align-items:end; }
-    button { border:0; border-radius:13px; padding:13px 15px; font-weight:750; cursor:pointer; font:inherit; min-height:48px; -webkit-tap-highlight-color:transparent; }
+    button { border:0; border-radius:13px; padding:13px 15px; font-weight:750; cursor:pointer; font:inherit; min-height:48px; -webkit-tap-highlight-color:transparent; transition:all 150ms ease; }
     button:disabled { opacity:.65; cursor:wait; }
+    button:active:not(:disabled) { transform:scale(.98); }
     .primary { background:var(--accent); color:#fff; }
+    .primary:hover:not(:disabled) { background:var(--accent-dark); }
     .primary:active { background:var(--accent-dark); }
     .secondary { background:#eeeef3; color:#171717; }
+    .secondary:hover:not(:disabled) { background:#dddae8; }
     .small { min-height:40px; padding:9px 11px; font-size:14px; }
     .danger { background:#fff0f0; color:#9a1f1f; }
+    .danger:hover:not(:disabled) { background:#ffe5e5; }
     .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
     .actions .primary { grid-column:1/-1; }
     .tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#eeeef3; padding:6px; border-radius:16px; }
-    .tab { background:transparent; min-height:42px; }
+    .tab { background:transparent; min-height:42px; font-size:14px; }
     .tab.active { background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.08); color:var(--accent-dark); }
     .hidden { display:none !important; }
-    canvas#signaturePad { width:100%; height:170px; border:1.5px dashed #aaa; border-radius:14px; background:#fff; touch-action:none; display:block; }
+    canvas#signaturePad { width:100%; max-width:100%; border:1.5px dashed #aaa; border-radius:14px; background:#fff; touch-action:none; display:block; aspect-ratio:3/1; }
     .note { font-size:13px; color:var(--muted); margin-top:8px; line-height:1.35; }
     .signature-choice { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0 12px; }
-    .preview-card { position:sticky; top:16px; }
+    .preview-card { position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto; }
     .preview-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
     .preview-header .section-title { margin:0; }
-    .preview-wrap { overflow:auto; background:#ececf2; border-radius:16px; padding:16px; -webkit-overflow-scrolling:touch; }
-    #preview, .pdf-page { width:595px; height:842px; background:white; padding:96px 70px; font-family:"Times New Roman", Times, serif; color:#000; position:relative; }
-    #preview { margin:auto; box-shadow:0 2px 14px rgba(0,0,0,.15); transform-origin:top center; }
+    .preview-wrap { overflow:auto; background:#ececf2; border-radius:16px; padding:clamp(8px,2vw,16px); -webkit-overflow-scrolling:touch; }
+    #preview, .pdf-page { width:595px; height:842px; background:white; padding:96px 70px; font-family:"Times New Roman", Times, serif; color:#000; position:relative; flex-shrink:0; }
+    #preview { margin:auto; box-shadow:0 2px 14px rgba(0,0,0,.15); transform-origin:center top; }
     .doc-title { text-align:center; font-weight:bold; text-decoration:underline; font-size:16px; margin-bottom:48px; }
     .doc-line { font-size:16px; font-weight:bold; line-height:1.55; white-space:normal; }
     .fill { display:inline-block; border-bottom:2px dotted #000; min-width:210px; padding:0 6px 1px 6px; line-height:1.1; text-align:center; overflow-wrap:anywhere; }
@@ -61,42 +65,137 @@
     .sig-area { margin-left:240px; margin-top:22px; text-align:center; width:260px; }
     .sig-img { height:82px; max-width:220px; object-fit:contain; display:block; margin:0 auto -10px; }
     .sig-placeholder { height:72px; }
-    .sig-text { height:82px; display:flex; align-items:end; justify-content:center; font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive; font-size:34px; font-weight:400; font-style:italic; transform:rotate(-4deg); margin-bottom:-10px; }
+    .sig-text { height:82px; display:flex; align-items:end; justify-content:center; font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive; font-size:34px; font-weight:400; font-style:italic; }
     .sig-line { border-top:2px dotted #000; height:14px; }
     .sig-label { font-weight:bold; font-size:15px; }
     .hidden-render { position:fixed; left:-10000px; top:0; }
     .mobile-preview-toggle { display:none; width:100%; margin-top:10px; }
     .output-list { display:grid; gap:8px; margin-top:14px; }
     .output-item { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; border:1px solid var(--border); border-radius:14px; padding:10px; background:#fafafa; }
-    .output-name { font-size:14px; overflow-wrap:anywhere; }
+    .output-name { font-size:14px; overflow-wrap:anywhere; word-break:break-word; }
     .multi-list { display:grid; gap:8px; margin-top:14px; }
     .multi-item { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; border:1px solid var(--border); border-radius:14px; padding:10px; background:#fafafa; }
-    .multi-main { font-size:14px; line-height:1.35; }
-    @media (max-width:850px) {
-      body { background:#fff; }
-      main { padding:max(14px,env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)); gap:14px; }
-      .hero { padding:18px; border-radius:20px; }
-      .grid { grid-template-columns:1fr; gap:14px; }
-      .card { border-radius:18px; padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.06); }
-      .row, .row3 { grid-template-columns:1fr; gap:0; }
-      label { margin-top:13px; }
-      input, textarea, select { border-radius:14px; padding:14px; }
-      canvas#signaturePad { height:190px; }
-      .actions { position:sticky; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:5; background:rgba(255,255,255,.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(222,222,229,.8); border-radius:18px; padding:10px; margin-left:-6px; margin-right:-6px; box-shadow:0 8px 28px rgba(0,0,0,.12); }
+    .multi-main { font-size:14px; line-height:1.35; word-break:break-word; }
+
+    /* Responsive Breakpoints */
+    /* Extra Large (1600px+) - Desktop */
+    @media (min-width:1600px) {
+      main { padding:32px; gap:32px; }
+      .grid { gap:32px; }
+      .card { padding:28px; }
+    }
+
+    /* Large (1200px - 1599px) - Wide Desktop */
+    @media (max-width:1599px) and (min-width:1200px) {
+      main { max-width:1200px; }
+      .preview-card { position:sticky; top:16px; }
+    }
+
+    /* Medium (1024px - 1199px) - Desktop / iPad Landscape */
+    @media (max-width:1199px) and (min-width:1024px) {
+      main { max-width:100%; padding:24px; gap:20px; }
+      .grid { grid-template-columns:1fr 1.1fr; gap:20px; }
+      .card { padding:18px; }
+      .preview-card { position:sticky; top:16px; max-height:calc(100vh - 100px); }
+      #preview { transform:scale(0.65); }
+    }
+
+    /* Tablet (768px - 1023px) */
+    @media (max-width:1023px) and (min-width:768px) {
+      main { padding:20px; gap:16px; }
+      .grid { grid-template-columns:1fr; gap:16px; }
+      .card { padding:16px; }
+      .row, .row3 { grid-template-columns:1fr; gap:8px; }
       .preview-card { position:static; }
       .mobile-preview-toggle { display:block; }
-      .preview-wrap { padding:10px; height:520px; overflow:hidden; }
-      #preview { transform:scale(.55); transform-origin:top left; margin:0; }
-      .preview-wrap.compact { height:0; padding:0; overflow:hidden; border:0; }
+      .preview-wrap { padding:12px; height:0; padding:0; overflow:hidden; border:0; }
+      .preview-wrap.expanded { height:auto; padding:12px; overflow:auto; border:1px solid var(--border); }
+      #preview { transform:scale(0.55); }
+      textarea { min-height:90px; }
+      canvas#signaturePad { height:200px; }
+      .actions { position:sticky; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:5; background:rgba(255,255,255,.94); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--border); padding:10px 0; margin:0 -16px -16px -16px; padding:10px 16px; }
     }
-    @media (max-width:390px) {
-      main { padding-left:10px; padding-right:10px; }
-      .actions { grid-template-columns:1fr; }
-      .actions .primary { grid-column:auto; }
-      .preview-wrap { height:470px; }
-      #preview { transform:scale(.50); }
-      .signature-choice { grid-template-columns:1fr; }
-      .tabs { grid-template-columns:1fr; }
+
+    /* Small Tablet / Large Phone (481px - 767px) */
+    @media (max-width:767px) and (min-width:481px) {
+      body { background:#fff; }
+      main { padding:16px; gap:12px; }
+      .hero { padding:16px; border-radius:20px; }
+      .grid { grid-template-columns:1fr; gap:12px; }
+      .card { border-radius:16px; padding:14px; box-shadow:0 4px 18px rgba(0,0,0,.06); }
+      .row, .row3 { grid-template-columns:1fr; gap:8px; }
+      label { margin-top:12px; }
+      input, textarea, select { border-radius:12px; padding:12px; }
+      textarea { min-height:80px; }
+      canvas#signaturePad { height:180px; }
+      .section-title { font-size:14px; }
+      .actions { position:sticky; bottom:calc(8px + env(safe-area-inset-bottom)); z-index:5; background:rgba(255,255,255,.93); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px -14px -14px -14px; padding:12px 14px; }
+      .actions .primary { grid-column:1/-1; }
+      .preview-card { position:static; }
+      .mobile-preview-toggle { display:block; margin-top:8px; }
+      .preview-wrap { height:0; padding:0; overflow:hidden; border:0; }
+      .preview-wrap.expanded { height:450px; padding:10px; overflow:auto; border:1px solid var(--border); border-radius:14px; background:#ececf2; }
+      #preview { transform:scale(0.50); margin:0; }
+      .signature-choice { grid-template-columns:1fr 1fr; }
+      .tabs { grid-template-columns:1fr 1fr; }
+    }
+
+    /* Phone (up to 480px) */
+    @media (max-width:480px) {
+      body { background:#fff; }
+      main { padding:12px; gap:10px; }
+      .hero { padding:14px; border-radius:16px; margin:-12px -12px 0 -12px; }
+      h1 { font-size:clamp(18px,6vw,28px); margin:0 0 6px; }
+      p { font-size:13px; }
+      .grid { grid-template-columns:1fr; gap:10px; }
+      .card { border-radius:14px; padding:12px; box-shadow:0 2px 12px rgba(0,0,0,.05); }
+      .row, .row3 { grid-template-columns:1fr; gap:6px; }
+      .section-title { font-size:13px; margin:0 0 10px; }
+      label { margin-top:10px; font-size:13px; }
+      input, textarea, select { border-radius:10px; padding:11px 12px; font-size:16px; }
+      textarea { min-height:75px; }
+      button { padding:11px 12px; min-height:44px; font-size:14px; }
+      .small { padding:8px 10px; min-height:36px; font-size:13px; }
+      canvas#signaturePad { height:150px; }
+      .note { font-size:12px; margin-top:6px; }
+      .tabs { gap:6px; padding:4px; }
+      .tab { min-height:38px; font-size:13px; }
+      .actions { position:fixed; bottom:0; left:0; right:0; z-index:99; background:rgba(255,255,255,.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:12px env(safe-area-inset-bottom) calc(12px + env(safe-area-inset-bottom)) 12px; }
+      .actions .primary { grid-column:1/-1; }
+      main { padding-bottom:calc(70px + env(safe-area-inset-bottom)); }
+      .preview-card { position:static; }
+      .mobile-preview-toggle { display:block; margin-top:6px; font-size:13px; }
+      .preview-wrap { height:0; padding:0; overflow:hidden; border:0; }
+      .preview-wrap.expanded { height:380px; padding:8px; overflow:auto; border:1px solid var(--border); border-radius:12px; background:#ececf2; }
+      #preview { transform:scale(0.42); margin:0; transform-origin:top left; }
+      .signature-choice { grid-template-columns:1fr; gap:6px; margin:6px 0 10px; }
+      .multi-item, .output-item { padding:8px; }
+      .multi-main, .output-name { font-size:13px; }
+    }
+
+    /* iPhone SE / Very Small Devices (up to 375px) */
+    @media (max-width:375px) {
+      h1 { font-size:clamp(16px,5vw,24px); margin:0 0 4px; }
+      p { font-size:12px; line-height:1.4; }
+      .card { padding:10px; }
+      #preview { transform:scale(0.38); }
+      .preview-wrap.expanded { height:320px; }
+      button { padding:10px; font-size:13px; }
+      .small { padding:7px 9px; }
+      input, textarea, select { padding:10px 11px; }
+    }
+
+    /* Landscape orientation adjustments */
+    @media (max-height:600px) and (orientation:landscape) {
+      .preview-card { position:static; }
+      .preview-wrap { height:auto; max-height:350px; }
+      .actions { position:relative; margin-top:12px; }
+      main { padding-bottom:0; }
+    }
+
+    /* High DPI / Retina adjustments */
+    @media (-webkit-min-device-pixel-ratio:2), (min-resolution:192dpi) {
+      canvas#signaturePad { border-width:1px; }
     }
   </style>
 </head>
@@ -163,7 +262,7 @@
       </div>
 
       <div id="drawSigBox">
-        <canvas id="signaturePad" width="720" height="220"></canvas>
+        <canvas id="signaturePad"></canvas>
         <div class="note">Írj ujjal vagy egérrel a mezőbe. Az aláírás helyben marad a böngészőben.</div>
         <button class="secondary small" id="clearSignature" type="button" style="margin-top:10px;">Aláírás törlése</button>
       </div>
@@ -220,10 +319,31 @@ let signatureMode = 'draw';
 let multiItems = [];
 let generatedUrls = [];
 
+// Responsive canvas initialization
+function initCanvas() {
+  const container = els.canvas.parentElement;
+  const width = container.clientWidth;
+  const isMobile = window.innerWidth < 768;
+  
+  els.canvas.width = width * window.devicePixelRatio;
+  els.canvas.height = (width * 0.35) * window.devicePixelRatio;
+  
+  const ctx = els.canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#000';
+}
+
+initCanvas();
+window.addEventListener('resize', () => {
+  if (window.innerWidth < 1024) {
+    initCanvas();
+  }
+});
+
 const ctx = els.canvas.getContext('2d');
-ctx.lineWidth = 3;
-ctx.lineCap = 'round';
-ctx.lineJoin = 'round';
 let drawing = false;
 let hasSignature = false;
 let lastX = 0, lastY = 0;
@@ -234,10 +354,11 @@ function pointerPos(e) {
           : e.changedTouches && e.changedTouches.length ? e.changedTouches[0]
           : e;
   return {
-    x: (p.clientX - rect.left) * (els.canvas.width / rect.width),
-    y: (p.clientY - rect.top) * (els.canvas.height / rect.height)
+    x: (p.clientX - rect.left) * (els.canvas.width / (rect.width * window.devicePixelRatio)),
+    y: (p.clientY - rect.top) * (els.canvas.height / (rect.height * window.devicePixelRatio))
   };
 }
+
 function startDraw(e) {
   drawing = true;
   hasSignature = true;
@@ -248,6 +369,7 @@ function startDraw(e) {
   ctx.moveTo(p.x, p.y);
   e.preventDefault();
 }
+
 function draw(e) {
   if (!drawing) return;
   const p = pointerPos(e);
@@ -261,6 +383,7 @@ function draw(e) {
   lastY = p.y;
   e.preventDefault();
 }
+
 function stopDraw(e) {
   if (!drawing) return;
   if (e) {
@@ -310,7 +433,7 @@ function setMode(next) {
   updatePreview();
 }
 
-document.getElementById('togglePreview').onclick = () => els.previewWrap.classList.toggle('compact');
+document.getElementById('togglePreview').onclick = () => els.previewWrap.classList.toggle('expanded');
 
 function splitNames(value) {
   return value.split(',').map(n => n.trim()).filter(Boolean);
@@ -424,7 +547,9 @@ function updatePreview() {
 
 document.getElementById('previewBtn').onclick = () => {
   updatePreview();
-  if (window.innerWidth <= 850) els.previewWrap.classList.remove('compact');
+  if (window.innerWidth <= 1023) {
+    els.previewWrap.classList.add('expanded');
+  }
 };
 
 ['input', 'change'].forEach(ev => {
@@ -548,7 +673,6 @@ document.getElementById('generateBtn').onclick = generateAll;
   els.issueDate.value = today.toISOString().slice(0,10);
   setSignatureMode('draw');
   updatePreview();
-  if (window.innerWidth <= 850) els.previewWrap.classList.add('compact');
 })();
 </script>
 </body>
