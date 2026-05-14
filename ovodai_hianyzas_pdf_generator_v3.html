@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Óvodai hiányzás igazolás PDF generátor</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg:#f5f5f7; --card:#ffffff; --text:#111111; --muted:#6b6b73;
+      --border:#dedee5; --accent:#6d4aff; --accent-dark:#5639dc;
+      --shadow:0 8px 28px rgba(0,0,0,.08); --radius:18px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--text); }
+    main { max-width:1040px; margin:0 auto; padding:24px; display:grid; gap:18px; }
+    .hero { background:linear-gradient(135deg,#fff 0%,#f0edff 100%); border:1px solid var(--border); border-radius:24px; padding:22px; box-shadow:var(--shadow); }
+    h1 { font-size:clamp(22px,4vw,32px); line-height:1.1; margin:0 0 8px; letter-spacing:-.02em; }
+    p { margin:0; color:var(--muted); line-height:1.45; font-size:15px; }
+    .grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); }
+    .section-title { font-size:15px; font-weight:750; margin:0 0 12px; }
+    label { display:block; font-weight:700; margin:14px 0 7px; font-size:14px; }
+    input, textarea, select { width:100%; border:1px solid var(--border); border-radius:13px; padding:13px 14px; font:inherit; font-size:16px; background:#fff; color:var(--text); outline:none; }
+    input:focus, textarea:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 4px rgba(109,74,255,.13); }
+    textarea { min-height:84px; resize:vertical; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .row3 { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px; align-items:end; }
+    button { border:0; border-radius:13px; padding:13px 15px; font-weight:750; cursor:pointer; font:inherit; min-height:48px; -webkit-tap-highlight-color:transparent; }
+    button:disabled { opacity:.65; cursor:wait; }
+    .primary { background:var(--accent); color:#fff; }
+    .primary:active { background:var(--accent-dark); }
+    .secondary { background:#eeeef3; color:#171717; }
+    .small { min-height:40px; padding:9px 11px; font-size:14px; }
+    .danger { background:#fff0f0; color:#9a1f1f; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+    .actions .primary { grid-column:1/-1; }
+    .tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#eeeef3; padding:6px; border-radius:16px; }
+    .tab { background:transparent; min-height:42px; }
+    .tab.active { background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.08); color:var(--accent-dark); }
+    .hidden { display:none !important; }
+    canvas#signaturePad { width:100%; height:170px; border:1.5px dashed #aaa; border-radius:14px; background:#fff; touch-action:none; display:block; }
+    .note { font-size:13px; color:var(--muted); margin-top:8px; line-height:1.35; }
+    .signature-choice { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:8px 0 12px; }
+    .preview-card { position:sticky; top:16px; }
+    .preview-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .preview-header .section-title { margin:0; }
+    .preview-wrap { overflow:auto; background:#ececf2; border-radius:16px; padding:16px; -webkit-overflow-scrolling:touch; }
+    #preview, .pdf-page { width:595px; height:842px; background:white; padding:96px 70px; font-family:"Times New Roman", Times, serif; color:#000; position:relative; }
+    #preview { margin:auto; box-shadow:0 2px 14px rgba(0,0,0,.15); transform-origin:top center; }
+    .doc-title { text-align:center; font-weight:bold; text-decoration:underline; font-size:16px; margin-bottom:48px; }
+    .doc-line { font-size:16px; font-weight:bold; line-height:1.55; white-space:normal; }
+    .fill { display:inline-block; border-bottom:2px dotted #000; min-width:210px; padding:0 6px 1px 6px; line-height:1.1; text-align:center; overflow-wrap:anywhere; }
+    .fill.short { min-width:52px; }
+    .fill.medium { min-width:130px; }
+    .fill.name { min-width:310px; max-width:310px; vertical-align:bottom; }
+    .gap { height:34px; }
+    .date { font-size:16px; font-weight:bold; margin-top:48px; }
+    .sig-area { margin-left:240px; margin-top:22px; text-align:center; width:260px; }
+    .sig-img { height:82px; max-width:220px; object-fit:contain; display:block; margin:0 auto -10px; }
+    .sig-placeholder { height:72px; }
+    .sig-text { height:82px; display:flex; align-items:end; justify-content:center; font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive; font-size:34px; font-weight:400; font-style:italic; transform:rotate(-4deg); margin-bottom:-10px; }
+    .sig-line { border-top:2px dotted #000; height:14px; }
+    .sig-label { font-weight:bold; font-size:15px; }
+    .hidden-render { position:fixed; left:-10000px; top:0; }
+    .mobile-preview-toggle { display:none; width:100%; margin-top:10px; }
+    .output-list { display:grid; gap:8px; margin-top:14px; }
+    .output-item { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; border:1px solid var(--border); border-radius:14px; padding:10px; background:#fafafa; }
+    .output-name { font-size:14px; overflow-wrap:anywhere; }
+    .multi-list { display:grid; gap:8px; margin-top:14px; }
+    .multi-item { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; border:1px solid var(--border); border-radius:14px; padding:10px; background:#fafafa; }
+    .multi-main { font-size:14px; line-height:1.35; }
+    @media (max-width:850px) {
+      body { background:#fff; }
+      main { padding:max(14px,env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)); gap:14px; }
+      .hero { padding:18px; border-radius:20px; }
+      .grid { grid-template-columns:1fr; gap:14px; }
+      .card { border-radius:18px; padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.06); }
+      .row, .row3 { grid-template-columns:1fr; gap:0; }
+      label { margin-top:13px; }
+      input, textarea, select { border-radius:14px; padding:14px; }
+      canvas#signaturePad { height:190px; }
+      .actions { position:sticky; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:5; background:rgba(255,255,255,.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(222,222,229,.8); border-radius:18px; padding:10px; margin-left:-6px; margin-right:-6px; box-shadow:0 8px 28px rgba(0,0,0,.12); }
+      .preview-card { position:static; }
+      .mobile-preview-toggle { display:block; }
+      .preview-wrap { padding:10px; height:520px; overflow:hidden; }
+      #preview { transform:scale(.55); transform-origin:top left; margin:0; }
+      .preview-wrap.compact { height:0; padding:0; overflow:hidden; border:0; }
+    }
+    @media (max-width:390px) {
+      main { padding-left:10px; padding-right:10px; }
+      .actions { grid-template-columns:1fr; }
+      .actions .primary { grid-column:auto; }
+      .preview-wrap { height:470px; }
+      #preview { transform:scale(.50); }
+      .signature-choice { grid-template-columns:1fr; }
+      .tabs { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <h1>Óvodai hiányzás igazolás</h1>
+    <p>Normál módban egy időszakra készülnek PDF-ek. Több dátum módban előbb listát építesz név + hiányzás alapján, majd egyben generálod a letöltéseket.</p>
+  </section>
+
+  <section class="tabs">
+    <button class="tab active" id="normalTab" type="button">Normál mód</button>
+    <button class="tab" id="multiTab" type="button">Több dátum mód</button>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <div id="normalMode">
+        <div class="section-title">Adatok</div>
+
+        <label for="names">Gyermek neve / nevei</label>
+        <textarea id="names" placeholder="Pl. Mile Ilona, Mile Borka"></textarea>
+
+        <div class="row">
+          <div>
+            <label for="fromDate">Hiányzás kezdete</label>
+            <input id="fromDate" type="date">
+          </div>
+          <div>
+            <label for="toDate">Hiányzás vége</label>
+            <input id="toDate" type="date">
+          </div>
+        </div>
+      </div>
+
+      <div id="multiMode" class="hidden">
+        <div class="section-title">Több dátum lista</div>
+
+        <label for="multiNames">Gyermek neve / nevei</label>
+        <textarea id="multiNames" placeholder="Pl. Mile Ilona, Mile Borka"></textarea>
+
+        <div class="row">
+          <div>
+            <label for="multiFromDate">Hiányzás kezdete</label>
+            <input id="multiFromDate" type="date">
+          </div>
+          <div>
+            <label for="multiToDate">Hiányzás vége</label>
+            <input id="multiToDate" type="date">
+          </div>
+        </div>
+
+        <button class="secondary" id="addMultiItem" type="button" style="width:100%;margin-top:12px;">Hozzáadás a listához</button>
+        <div id="multiList" class="multi-list"></div>
+      </div>
+
+      <label for="issueDate">Dátum</label>
+      <input id="issueDate" type="date">
+
+      <label>Aláírás</label>
+      <div class="signature-choice">
+        <button class="secondary small" id="drawSigBtn" type="button">Kézzel rajzolt</button>
+        <button class="secondary small" id="typedSigBtn" type="button">Névből generált</button>
+      </div>
+
+      <div id="drawSigBox">
+        <canvas id="signaturePad" width="720" height="220"></canvas>
+        <div class="note">Írj ujjal vagy egérrel a mezőbe. Az aláírás helyben marad a böngészőben.</div>
+        <button class="secondary small" id="clearSignature" type="button" style="margin-top:10px;">Aláírás törlése</button>
+      </div>
+
+      <div id="typedSigBox" class="hidden">
+        <input id="typedSignature" type="text" placeholder="Pl. Mile Márió">
+        <div class="note">A PDF-ben aláírásszerű, dőlt kézírásos szövegként jelenik meg. Ez nem valódi digitális aláírás.</div>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" id="previewBtn" type="button">Előnézet</button>
+        <button class="primary" id="generateBtn" type="button">PDF-ek generálása</button>
+      </div>
+
+      <div id="outputList" class="output-list"></div>
+    </div>
+
+    <div class="card preview-card">
+      <div class="preview-header">
+        <div class="section-title">Előnézet</div>
+      </div>
+      <button class="secondary mobile-preview-toggle" id="togglePreview" type="button">Előnézet mutatása / elrejtése</button>
+      <div class="preview-wrap" id="previewWrap">
+        <div id="preview"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="renderHost" class="hidden-render"></div>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+const els = {
+  names: document.getElementById('names'),
+  fromDate: document.getElementById('fromDate'),
+  toDate: document.getElementById('toDate'),
+  multiNames: document.getElementById('multiNames'),
+  multiFromDate: document.getElementById('multiFromDate'),
+  multiToDate: document.getElementById('multiToDate'),
+  multiList: document.getElementById('multiList'),
+  issueDate: document.getElementById('issueDate'),
+  typedSignature: document.getElementById('typedSignature'),
+  preview: document.getElementById('preview'),
+  previewWrap: document.getElementById('previewWrap'),
+  canvas: document.getElementById('signaturePad'),
+  renderHost: document.getElementById('renderHost'),
+  outputList: document.getElementById('outputList')
+};
+
+let mode = 'normal';
+let signatureMode = 'draw';
+let multiItems = [];
+let generatedUrls = [];
+
+const ctx = els.canvas.getContext('2d');
+ctx.lineWidth = 3;
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+let drawing = false;
+let hasSignature = false;
+
+function pointerPos(e) {
+  const rect = els.canvas.getBoundingClientRect();
+  const p = e.touches ? e.touches[0] : e;
+  return {
+    x: (p.clientX - rect.left) * (els.canvas.width / rect.width),
+    y: (p.clientY - rect.top) * (els.canvas.height / rect.height)
+  };
+}
+function startDraw(e) {
+  drawing = true;
+  hasSignature = true;
+  const p = pointerPos(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  e.preventDefault();
+}
+function draw(e) {
+  if (!drawing) return;
+  const p = pointerPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  e.preventDefault();
+}
+function stopDraw() { drawing = false; updatePreview(); }
+
+els.canvas.addEventListener('mousedown', startDraw);
+els.canvas.addEventListener('mousemove', draw);
+window.addEventListener('mouseup', stopDraw);
+els.canvas.addEventListener('touchstart', startDraw, {passive:false});
+els.canvas.addEventListener('touchmove', draw, {passive:false});
+els.canvas.addEventListener('touchend', stopDraw);
+
+document.getElementById('clearSignature').onclick = () => {
+  ctx.clearRect(0, 0, els.canvas.width, els.canvas.height);
+  hasSignature = false;
+  updatePreview();
+};
+
+document.getElementById('drawSigBtn').onclick = () => setSignatureMode('draw');
+document.getElementById('typedSigBtn').onclick = () => setSignatureMode('typed');
+
+function setSignatureMode(next) {
+  signatureMode = next;
+  document.getElementById('drawSigBox').classList.toggle('hidden', next !== 'draw');
+  document.getElementById('typedSigBox').classList.toggle('hidden', next !== 'typed');
+  document.getElementById('drawSigBtn').classList.toggle('primary', next === 'draw');
+  document.getElementById('typedSigBtn').classList.toggle('primary', next === 'typed');
+  updatePreview();
+}
+
+document.getElementById('normalTab').onclick = () => setMode('normal');
+document.getElementById('multiTab').onclick = () => setMode('multi');
+
+function setMode(next) {
+  mode = next;
+  document.getElementById('normalMode').classList.toggle('hidden', next !== 'normal');
+  document.getElementById('multiMode').classList.toggle('hidden', next !== 'multi');
+  document.getElementById('normalTab').classList.toggle('active', next === 'normal');
+  document.getElementById('multiTab').classList.toggle('active', next === 'multi');
+  clearGenerated();
+  updatePreview();
+}
+
+document.getElementById('togglePreview').onclick = () => els.previewWrap.classList.toggle('compact');
+
+function splitNames(value) {
+  return value.split(',').map(n => n.trim()).filter(Boolean);
+}
+
+function huDateParts(value) {
+  if (!value) return {year:'', month:'', day:''};
+  const d = new Date(value + 'T00:00:00');
+  return {
+    year: String(d.getFullYear()),
+    month: d.toLocaleDateString('hu-HU', { month: 'long' }),
+    day: String(d.getDate())
+  };
+}
+
+function compactDate(value) {
+  if (!value) return '';
+  const d = new Date(value + 'T00:00:00');
+  return `${d.getFullYear()} ${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function filenameDate(value) {
+  if (!value) return '';
+  const d = new Date(value + 'T00:00:00');
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function sanitizeFileName(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9 _-]+/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function makeFileName(name, fromDate, toDate) {
+  return `${filenameDate(fromDate)} tol ${filenameDate(toDate)} ${sanitizeFileName(name)} igazolas.pdf`;
+}
+
+function getSignatureDataUrl() {
+  if (signatureMode !== 'draw' || !hasSignature) return null;
+  return els.canvas.toDataURL('image/png');
+}
+
+function getTypedSignature() {
+  if (signatureMode !== 'typed') return '';
+  return els.typedSignature.value.trim();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function makeHtml(item, pageClass='') {
+  const from = huDateParts(item.fromDate);
+  const to = huDateParts(item.toDate);
+  const issue = compactDate(els.issueDate.value);
+  const sigImg = getSignatureDataUrl();
+  const sigText = getTypedSignature();
+
+  return `
+    <div class="${pageClass}">
+      <div class="doc-title">Kérelem szülő által igazolt hiányzásról</div>
+
+      <div class="doc-line">
+        Alulírott szülő kérem engedélyezni, hogy
+        <span class="fill name">${escapeHtml(item.name || '')}</span>
+        nevű gyermekem,
+      </div>
+
+      <div class="gap"></div>
+
+      <div class="doc-line">
+        <span class="fill short">${escapeHtml(from.year || '')}</span>
+        év
+        <span class="fill medium">${escapeHtml(from.month || '')}</span>
+        hó
+        <span class="fill short">${escapeHtml(from.day || '')}</span>
+        naptól
+        <span class="fill medium">${escapeHtml(to.month || '')}</span>
+        hó
+        <span class="fill short">${escapeHtml(to.day || '')}</span>
+        napig
+      </div>
+
+      <div class="doc-line">igazoltan hiányozhasson az óvodából.</div>
+
+      <div class="date">Dátum:${escapeHtml(issue || '')}</div>
+
+      <div class="sig-area">
+        ${sigImg ? `<img class="sig-img" src="${sigImg}">` : sigText ? `<div class="sig-text">${escapeHtml(sigText)}</div>` : `<div class="sig-placeholder"></div>`}
+        <div class="sig-line"></div>
+        <div class="sig-label">szülő aláírása</div>
+      </div>
+    </div>
+  `;
+}
+
+function currentPreviewItem() {
+  if (mode === 'multi' && multiItems.length) return multiItems[0];
+  if (mode === 'multi') {
+    const name = splitNames(els.multiNames.value)[0] || '';
+    return { name, fromDate: els.multiFromDate.value, toDate: els.multiToDate.value };
+  }
+  return {
+    name: splitNames(els.names.value)[0] || '',
+    fromDate: els.fromDate.value,
+    toDate: els.toDate.value
+  };
+}
+
+function updatePreview() {
+  els.preview.innerHTML = makeHtml(currentPreviewItem(), '');
+}
+
+document.getElementById('previewBtn').onclick = () => {
+  updatePreview();
+  if (window.innerWidth <= 850) els.previewWrap.classList.remove('compact');
+};
+
+['input', 'change'].forEach(ev => {
+  [els.names, els.fromDate, els.toDate, els.multiNames, els.multiFromDate, els.multiToDate, els.issueDate, els.typedSignature].forEach(el => {
+    el.addEventListener(ev, updatePreview);
+  });
+});
+
+document.getElementById('addMultiItem').onclick = () => {
+  const names = splitNames(els.multiNames.value);
+  if (!names.length) return alert('Adj meg legalább egy nevet.');
+  if (!els.multiFromDate.value || !els.multiToDate.value) return alert('Add meg a kezdő és záró dátumot.');
+
+  names.forEach(name => multiItems.push({
+    name,
+    fromDate: els.multiFromDate.value,
+    toDate: els.multiToDate.value
+  }));
+
+  els.multiNames.value = '';
+  renderMultiList();
+  clearGenerated();
+  updatePreview();
+};
+
+function renderMultiList() {
+  els.multiList.innerHTML = '';
+  multiItems.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'multi-item';
+    div.innerHTML = `
+      <div class="multi-main"><strong>${escapeHtml(item.name)}</strong><br>${escapeHtml(filenameDate(item.fromDate))} → ${escapeHtml(filenameDate(item.toDate))}</div>
+      <button class="danger small" type="button">Törlés</button>
+    `;
+    div.querySelector('button').onclick = () => {
+      multiItems.splice(index, 1);
+      renderMultiList();
+      clearGenerated();
+      updatePreview();
+    };
+    els.multiList.appendChild(div);
+  });
+}
+
+async function makePdfBlob(item) {
+  els.renderHost.innerHTML = makeHtml(item, 'pdf-page');
+  const page = els.renderHost.querySelector('.pdf-page');
+
+  const canvas = await html2canvas(page, {
+    scale: 2,
+    backgroundColor: '#ffffff',
+    useCORS: true
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.82);
+  const pdf = new jsPDF({ orientation:'p', unit:'pt', format:'a4', compress:true });
+  pdf.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
+  els.renderHost.innerHTML = '';
+  return pdf.output('blob');
+}
+
+function clearGenerated() {
+  generatedUrls.forEach(x => URL.revokeObjectURL(x.url));
+  generatedUrls = [];
+  els.outputList.innerHTML = '';
+}
+
+function renderGeneratedList() {
+  els.outputList.innerHTML = '';
+  generatedUrls.forEach(file => {
+    const div = document.createElement('div');
+    div.className = 'output-item';
+    div.innerHTML = `
+      <div class="output-name">${escapeHtml(file.name)}</div>
+      <a href="${file.url}" download="${escapeHtml(file.name)}"><button class="secondary small" type="button">Letöltés</button></a>
+    `;
+    els.outputList.appendChild(div);
+  });
+}
+
+function getItemsForGeneration() {
+  if (mode === 'multi') return multiItems.slice();
+
+  const names = splitNames(els.names.value);
+  return names.map(name => ({
+    name,
+    fromDate: els.fromDate.value,
+    toDate: els.toDate.value
+  }));
+}
+
+async function generateAll() {
+  const items = getItemsForGeneration();
+  if (!items.length) return alert(mode === 'multi' ? 'Adj hozzá legalább egy listaelemet.' : 'Adj meg legalább egy gyermeknevet.');
+  if (!els.issueDate.value) return alert('Add meg a dátumot.');
+  if (items.some(i => !i.fromDate || !i.toDate)) return alert('Minden elemhez kell kezdő és záró dátum.');
+
+  clearGenerated();
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.textContent = 'PDF készül...';
+
+  try {
+    for (const item of items) {
+      const blob = await makePdfBlob(item);
+      const url = URL.createObjectURL(blob);
+      generatedUrls.push({ name: makeFileName(item.name, item.fromDate, item.toDate), url });
+      renderGeneratedList();
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'PDF-ek generálása';
+  }
+}
+
+document.getElementById('generateBtn').onclick = generateAll;
+
+(function init() {
+  const today = new Date();
+  els.issueDate.value = today.toISOString().slice(0,10);
+  setSignatureMode('draw');
+  updatePreview();
+  if (window.innerWidth <= 850) els.previewWrap.classList.add('compact');
+})();
+</script>
+</body>
+</html>
