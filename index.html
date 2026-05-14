@@ -226,10 +226,13 @@ ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
 let drawing = false;
 let hasSignature = false;
+let lastX = 0, lastY = 0;
 
 function pointerPos(e) {
   const rect = els.canvas.getBoundingClientRect();
-  const p = e.touches ? e.touches[0] : e;
+  const p = e.touches && e.touches.length ? e.touches[0]
+          : e.changedTouches && e.changedTouches.length ? e.changedTouches[0]
+          : e;
   return {
     x: (p.clientX - rect.left) * (els.canvas.width / rect.width),
     y: (p.clientY - rect.top) * (els.canvas.height / rect.height)
@@ -239,6 +242,8 @@ function startDraw(e) {
   drawing = true;
   hasSignature = true;
   const p = pointerPos(e);
+  lastX = p.x;
+  lastY = p.y;
   ctx.beginPath();
   ctx.moveTo(p.x, p.y);
   e.preventDefault();
@@ -246,11 +251,26 @@ function startDraw(e) {
 function draw(e) {
   if (!drawing) return;
   const p = pointerPos(e);
-  ctx.lineTo(p.x, p.y);
+  const midX = (lastX + p.x) / 2;
+  const midY = (lastY + p.y) / 2;
+  ctx.quadraticCurveTo(lastX, lastY, midX, midY);
   ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(midX, midY);
+  lastX = p.x;
+  lastY = p.y;
   e.preventDefault();
 }
-function stopDraw() { drawing = false; updatePreview(); }
+function stopDraw(e) {
+  if (!drawing) return;
+  if (e) {
+    const p = pointerPos(e);
+    ctx.quadraticCurveTo(lastX, lastY, p.x, p.y);
+    ctx.stroke();
+  }
+  drawing = false;
+  updatePreview();
+}
 
 els.canvas.addEventListener('mousedown', startDraw);
 els.canvas.addEventListener('mousemove', draw);
